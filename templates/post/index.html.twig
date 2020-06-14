@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PostController!{% endblock %}
+{% block title %}Posts{% endblock %}
 
 {% block body %}
 <style>
@@ -9,12 +9,20 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    {# Mostra as mensagens de sessão Flash  #}
+    {% for message in app.session.flashBag.get('success') %}
+        <h2>{{ message }}</h2>
+    {% endfor %}
+    <h1>Postagens Recentes ✅ - <a href="{{ path('post_create') }}">Criar Post</a> </h1>
 
-    This friendly message is coming from:
     <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/alessandro.navarro/Desktop/cursos/symfony4-blog/src/Controller/PostController.php'|file_link(0) }}">src/Controller/PostController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/alessandro.navarro/Desktop/cursos/symfony4-blog/templates/post/index.html.twig'|file_link(0) }}">templates/post/index.html.twig</a></code></li>
+        {% for post in posts %}
+        <li>
+            {{ post.id }} - {{ post.title }} - {{ post.createdAt|date('d/m/Y H:i:s') }}
+            <a href="{{ path('post_edit', {'id': post.id}) }}">Editar</a> |
+            <a href="{{ path('post_remove', {'id': post.id}) }}">Apagar</a>
+        </li>
+        {% endfor %}
     </ul>
 </div>
 {% endblock %}

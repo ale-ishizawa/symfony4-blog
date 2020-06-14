@@ -14,8 +14,37 @@ class DefaultController extends AbstractController
      */
     public function index()
     {
+        $posts = [
+            [
+                'id' => 1,
+                'title' => 'Post 1',
+                'created_at' => '2019-01-28 19:51:02'
+            ],
+            [
+                'id' => 1,
+                'title' => 'Post 1',
+                'created_at' => '2019-01-28 19:51:02'
+            ],
+            [
+                'id' => 1,
+                'title' => 'Post 1',
+                'created_at' => '2019-01-28 19:51:02'
+            ],
+        ];
         return $this->render('index.html.twig', [
-            'title' => 'Postagem Teste'
+            'title' => 'Postagem Teste',
+            'posts' => $posts
         ]);
+    }
+
+    /**
+     * @Route("/post-exemplo/{slug}")
+     */
+    public function single($slug)
+    {
+        return $this->render('single.html.twig',
+            [
+                'slug' => $slug
+            ]);
     }
 }
