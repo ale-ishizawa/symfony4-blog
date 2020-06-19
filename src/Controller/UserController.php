@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     /**
-     * @Route("/create", name="create")
+     * @Route("/user", name="user")
      */
     public function create(Request $request)
     {
@@ -38,17 +38,18 @@ class UserController extends AbstractController
             return $this->redirectToRoute('user_create');
         }
 
-        return $this->render('user/index.html.twig', [
+        return $this->render('user/create.html.twig', [
             //envio o formulário com os helpers para o template
             'form' => $form->createView()
         ]);
     }
     /**
-     * @Route("/edit", name="edit")
+     * @Route("/edit/{id}", name="edit")
      */
-    public function edit(Request $request)
+    public function edit(Request $request, $id)
     {
-        $user = new User();
+        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+
         //Cria o formulário
         $form = $this->createForm(UserType::class, $user);
         //Recebe o form vindo do front-end via Request
@@ -62,13 +63,12 @@ class UserController extends AbstractController
 
             //Persistindo no banco
             $manager = $this->getDoctrine()->getManager();
-            $manager->persist($user);
             $manager->flush();
-            $this->addFlash('success', 'Usuário criado com sucesso!');
+            $this->addFlash('success', 'Usuário editado com sucesso!');
             return $this->redirectToRoute('user_create');
         }
 
-        return $this->render('user/index.html.twig', [
+        return $this->render('edit.html.twig', [
             //envio o formulário com os helpers para o template
             'form' => $form->createView()
         ]);

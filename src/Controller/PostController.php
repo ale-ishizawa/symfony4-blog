@@ -25,7 +25,7 @@ class PostController extends AbstractController
     }
 
     /**
-     * @Route("/create", name="create")
+     * @Route("/user", name="user")
      */
     public function create()
     {
