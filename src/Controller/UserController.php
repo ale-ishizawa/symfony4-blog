@@ -14,14 +14,23 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     /**
-     * @Route("/user", name="user")
+     * @Route("/", name="index")
+     */
+    public function index()
+    {
+        $users = $this->getDoctrine()->getRepository(User::class)->findAll();
+        return $this->render('user/index.html.twig', ['users' => $users]);
+    }
+
+    /**
+     * @Route("/create", name="create")
      */
     public function create(Request $request)
     {
         $user = new User();
         //Cria o formulário
         $form = $this->createForm(UserType::class, $user);
-        //Recebe o form vindo do front-end via Request
+        //Recebo o form via request
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
@@ -35,7 +44,7 @@ class UserController extends AbstractController
             $manager->persist($user);
             $manager->flush();
             $this->addFlash('success', 'Usuário criado com sucesso!');
-            return $this->redirectToRoute('user_create');
+            return $this->redirectToRoute('user_index');
         }
 
         return $this->render('user/create.html.twig', [
@@ -52,26 +61,41 @@ class UserController extends AbstractController
 
         //Cria o formulário
         $form = $this->createForm(UserType::class, $user);
-        //Recebe o form vindo do front-end via Request
+        //Recebo o form via request
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
             //Obtém os dados do form (UserType.php)
             $user = $form->getData();
-            $user->setCreatedAt(new \DateTime('now', new \DateTimeZone('America/Sao_Paulo')));
             $user->setUpdatedAt(new \DateTime('now', new \DateTimeZone('America/Sao_Paulo')));
 
             //Persistindo no banco
             $manager = $this->getDoctrine()->getManager();
             $manager->flush();
+
             $this->addFlash('success', 'Usuário editado com sucesso!');
-            return $this->redirectToRoute('user_create');
+            return $this->redirectToRoute('user_edit', ['id' => $id]);
         }
 
-        return $this->render('edit.html.twig', [
+        return $this->render('user/edit.html.twig', [
             //envio o formulário com os helpers para o template
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("/remove/{id}", name="remove")
+     */
+    public function remove($id)
+    {
+        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+
+        //Removendo do banco
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($user);
+        $manager->flush();
+        $this->addFlash('success', 'Usuário removido com sucesso!');
+        return $this->redirectToRoute('user_index');
     }
 
 }

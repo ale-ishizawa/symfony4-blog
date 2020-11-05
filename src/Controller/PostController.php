@@ -3,12 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Form\PostType;
+use Cassandra\Date;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route("/post", name="post_")
+ * @Route("/posts", name="post_")
  */
 class PostController extends AbstractController
 {
@@ -25,11 +27,34 @@ class PostController extends AbstractController
     }
 
     /**
-     * @Route("/user", name="user")
+     * @Route("/create", name="create")
      */
-    public function create()
+    public function create(Request $request)
     {
-        return $this->render('post/create.html.twig');
+        $post = new Post();
+        //Criar o Form
+        $form = $this->createForm(PostType::class, $post);
+        //Recebo o form via request
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            ///Obtém os dados do form (PostType.php)
+            $post = $form->getData();
+            $post->setCreatedAt(new \DateTime('now', new \DateTimeZone('America/Sao_Paulo')));
+            $post->setUpdatedAt(new \DateTime('now', new \DateTimeZone('America/Sao_Paulo')));
+
+            //Persistindo no banco
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($post);
+            $manager->flush();
+            $this->addFlash('success', 'Post criado com sucesso!');
+            return $this->redirectToRoute('post_index');
+        }
+
+        return $this->render('post/create.html.twig', [
+            //envio o formulário com os helpers para o template
+            'form' => $form->createView()
+        ]);
     }
 
     /**
@@ -62,15 +87,31 @@ class PostController extends AbstractController
     /**
      * @Route("/edit/{id}", name="edit")
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         // Camada Repository permite fazer queries e chamadas dentro do DB
-        $post = $this->getDoctrine()
-                    ->getRepository(Post::class)
-                    ->find($id);
+        $post = $this->getDoctrine()->getRepository(Post::class)->find($id);
+
+        //Cria o Form
+        $form = $this->createForm(PostType::class, $post);
+        //Recebo o form via request
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            //Obtém os dados do form (PostType)
+            $post->setUpdatedAt(new \DateTime('now', new \DateTimeZone('America/Sao_Paulo')));
+
+            //Persistindo no banco
+            $manager = $this->getDoctrine()->getManager();
+            $manager->flush();
+
+            $this->addFlash('success', 'Post editado com sucesso!');
+            return $this->redirectToRoute('post_edit', ['id' => $id]);
+        }
 
         return $this->render('post/edit.html.twig', [
-            'post' => $post
+            //envio o formulário com os helpers para o template
+            'form' => $form->createView()
         ]);
     }
 

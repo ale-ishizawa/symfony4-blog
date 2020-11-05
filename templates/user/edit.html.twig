@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello UserController!{% endblock %}
-
 {% block body %}
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
@@ -12,7 +10,7 @@
 <div class="example-wrapper">
     {{ form_start(form) }}
         {{ form_widget(form) }}
-        <button type="submit">Atualizar Usuário</button>
+        <button type="submit" class="btn btn-lg btn-success">Atualizar Usuário</button>
     {{ form_end(form) }}
 </div>
 {% endblock %}
